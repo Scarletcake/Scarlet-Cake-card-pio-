@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scarlet Cake | Cardápio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff7fb;color:#3b2430}
+.wrap{max-width:720px;margin:auto;padding:18px}
+header{background:linear-gradient(135deg,#7d234f,#d86c9b);color:white;border-radius:24px;padding:28px 22px;text-align:center;box-shadow:0 10px 28px #0001}
+header h1{margin:0;font-size:34px} header p{margin:8px 0 0}
+.card{background:white;border:1px solid #f0d9e4;border-radius:20px;padding:18px;margin-top:15px;box-shadow:0 5px 18px #0000000b}
+.item{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:start;padding:15px 0;border-bottom:1px solid #f1e4ea}
+.item:last-child{border-bottom:0}.name{font-weight:700;font-size:17px}.price{font-weight:700;color:#9a285e}
+select,input,textarea{width:100%;padding:12px;border:1px solid #dfc8d3;border-radius:12px;background:white;font-size:16px;margin-top:8px}
+.qty{display:flex;align-items:center;gap:7px}.qty button{width:40px;height:40px;border:0;border-radius:10px;background:#f7e2ec;font-size:22px;cursor:pointer}.qty input{width:55px;text-align:center;margin:0}
+label{font-weight:600;font-size:14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.total{display:flex;justify-content:space-between;font-size:21px;font-weight:800;padding:15px 0}
+button.send{width:100%;border:0;border-radius:14px;padding:16px;background:#16833d;color:#fff;font-size:17px;font-weight:800;cursor:pointer}
+small{color:#795c69}.hide{display:none}.info{text-align:center;line-height:1.6;color:#795c69}
+@media(max-width:520px){.row{grid-template-columns:1fr}.item{grid-template-columns:28px 1fr}.qty{grid-column:2}.price{grid-column:2}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Scarlet Cake</h1><p>🍰 Escolha suas delícias e faça seu pedido</p></header>
+
+<div class="card">
+<h2>🍰 Cardápio</h2>
+
+<div class="item">
+<input type="checkbox" class="pick" data-price="12" data-name="Empadão de frango">
+<div><div class="name">Empadão de frango</div><small>Uma delícia caseira</small></div>
+<div class="price">R$ 12,00</div>
+<div class="qty"><button type="button" onclick="changeQty(this,-1)">−</button><input type="number" min="1" value="1" class="q"><button type="button" onclick="changeQty(this,1)">+</button></div>
+</div>
+
+<div class="item">
+<input type="checkbox" class="pick" data-price="10" data-name="Mini bolo">
+<div>
+<div class="name">Mini bolo</div><small>Escolha o recheio e a massa</small>
+<select class="flavor"><option>Chocolate</option><option>Ninho</option><option>Bem casado</option></select>
+<select class="massa"><option>Massa de chocolate</option><option>Massa amanteigada</option></select>
+</div><div class="price">R$ 10,00</div>
+<div class="qty"><button type="button" onclick="changeQty(this,-1)">−</button><input type="number" min="1" value="1" class="q"><button type="button" onclick="changeQty(this,1)">+</button></div>
+</div>
+
+<div class="item">
+<input type="checkbox" class="pick" data-price="8" data-name="Delícia de abacaxi">
+<div><div class="name">Delícia de abacaxi</div><small>Fresquinha e deliciosa</small></div>
+<div class="price">R$ 8,00</div>
+<div class="qty"><button type="button" onclick="changeQty(this,-1)">−</button><input type="number" min="1" value="1" class="q"><button type="button" onclick="changeQty(this,1)">+</button></div>
+</div>
+</div>
+
+<div class="card">
+<h2>📦 Como você prefere receber?</h2>
+<label><input type="radio" name="tipo" value="Retirada" checked> Retirada</label>
+<label style="display:block;margin-top:10px"><input type="radio" name="tipo" value="Entrega"> Entrega</label>
+<div class="row" style="margin-top:12px">
+<div><label>Seu nome</label><input id="nome" placeholder="Digite seu nome"></div>
+<div><label>Data do pedido</label><input id="data" type="date"></div>
+</div>
+<div><label>Observação</label><textarea id="obs" rows="3" placeholder="Alguma observação?"></textarea></div>
+<div class="total"><span>Total</span><span id="total">R$ 0,00</span></div>
+<button class="send" onclick="enviar()">📲 Enviar pedido pelo WhatsApp</button>
+<p id="msg" class="info"></p>
+</div>
+
+<div class="card info">
+📍 Rua 131, N° 166, Bairro Caetés 1<br>
+📲 WhatsApp: (81) 97318-2420
+</div>
+</div>
+
+<script>
+function money(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function changeQty(btn,d){const i=btn.parentElement.querySelector('.q');i.value=Math.max(1,(+i.value||1)+d);calc()}
+function calc(){
+ let total=0;
+ document.querySelectorAll('.item').forEach(x=>{let c=x.querySelector('.pick');if(c.checked)total+=+c.dataset.price*(+x.querySelector('.q').value||1)});
+ document.getElementById('total').textContent=money(total);return total
+}
+document.addEventListener('change',calc);document.addEventListener('input',calc);
+function enviar(){
+ const itens=[];
+ document.querySelectorAll('.item').forEach(x=>{
+  const c=x.querySelector('.pick');if(!c.checked)return;
+  const q=Math.max(1,+x.querySelector('.q').value||1);
+  let t=q+'x '+c.dataset.name;
+  if(c.dataset.name==='Mini bolo')t+=' — recheio: '+x.querySelector('.flavor').value+'; massa: '+x.querySelector('.massa').value;
+  itens.push('• '+t);
+ });
+ const msg=document.getElementById('msg');
+ if(!itens.length){msg.textContent='Marque pelo menos um produto.';return}
+ const nome=document.getElementById('nome').value.trim()||'Não informado';
+ const data=document.getElementById('data').value||'Não informada';
+ const obs=document.getElementById('obs').value.trim()||'Nenhuma';
+ const tipo=document.querySelector('input[name=tipo]:checked').value;
+ const texto='Olá, Scarlet Cake! 💕\\n\\nQuero fazer este pedido:\\n'+itens.join('\\n')+'\\n\\nTotal: '+money(calc())+'\\nNome: '+nome+'\\nData: '+data+'\\nForma: '+tipo+'\\nObservação: '+obs;
+ window.open('https://wa.me/5581973182420?text='+encodeURIComponent(texto),'_blank');
+}
+calc();
+</script>
+</body>
+</html>
